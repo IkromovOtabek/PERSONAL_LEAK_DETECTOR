@@ -1,0 +1,16 @@
+# Optional dependencies - install separately if needed
+
+# Image processing (for OCR)
+Pillow>=10.0.0
+
+# PDF processing
+PyMuPDF>=1.23.0
+
+# OCR
+pytesseract>=0.3.10
+
+# Note: These require additional system dependencies:
+# - Pillow: May require Visual Studio Build Tools on Windows
+# - PyMuPDF: May require Visual Studio Build Tools on Windows
+# - pytesseract: Requires Tesseract OCR installed on system
+
