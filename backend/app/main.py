@@ -117,8 +117,9 @@ async def health_check():
     try:
         # Ma'lumotlar bazasi ulanishini tekshirish
         from app.db.database import engine
+        from sqlalchemy import text
         with engine.connect() as conn:
-            conn.execute("SELECT 1")
+            conn.execute(text("SELECT 1"))
         return {"status": "healthy", "database": "connected"}
     except Exception as e:
         logger.error(f"Sog'liqni tekshirish muvaffaqiyatsiz: {e}")
