@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 import { formatKST } from '../utils/dateUtils';
@@ -26,6 +27,7 @@ export default function AdminPanel() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('users');
   const [selectedUser, setSelectedUser] = useState(null);
   const [showPassword, setShowPassword] = useState({});
@@ -50,7 +52,7 @@ export default function AdminPanel() {
         return response.data;
       } catch (error) {
         if (error.response?.status === 401 || error.response?.status === 403) {
-          throw new Error('Admin ruxsati yo\'q');
+          throw new Error(t('adminPanelPage.errors.noPermission'));
         }
         throw error;
       }
@@ -188,7 +190,7 @@ export default function AdminPanel() {
   };
 
   const handleDeleteUser = (userId) => {
-    if (window.confirm('Bu foydalanuvchini o\'chirishni xohlaysizmi?')) {
+    if (window.confirm(t('adminPanelPage.confirmDeleteUser'))) {
       deleteUserMutation.mutate(userId);
     }
   };
@@ -209,7 +211,7 @@ export default function AdminPanel() {
   const handleSavePassword = (userId) => {
     const password = newPassword[userId];
     if (!password || password.length < 6) {
-      alert('Parol kamida 6 belgidan iborat bo\'lishi kerak');
+      alert(t('adminPanelPage.passwordMin6'));
       return;
     }
     updatePasswordMutation.mutate({ userId, newPassword: password });
@@ -234,28 +236,28 @@ export default function AdminPanel() {
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            <span className="text-gradient">Admin Panel</span>
+            <span className="text-gradient">{t('adminPanelPage.title')}</span>
           </h1>
           <p className="text-lg text-gray-600">
-            Barcha foydalanuvchilarni boshqarish va tizim statistikasini ko'rish
+            {t('adminPanelPage.subtitle')}
           </p>
         </div>
         <div className="flex items-center space-x-3">
           <button
             onClick={handleExit}
             className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 hover:shadow-md"
-            title="Admin paneldan chiqish"
+            title={t('adminPanelPage.exitTitle')}
           >
             <ArrowLeftIcon className="h-5 w-5 mr-2" />
-            Chiqish
+            {t('adminPanelPage.exitLabel')}
           </button>
           <button
             onClick={handleLogout}
             className="inline-flex items-center px-4 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-white hover:bg-red-50 transition-all duration-200 hover:shadow-md"
-            title="Tizimdan chiqish"
+            title={t('adminPanelPage.logoutTitle')}
           >
             <ArrowRightOnRectangleIcon className="h-5 w-5 mr-2" />
-            Logout
+            {t('nav.logout')}
           </button>
         </div>
       </div>
@@ -264,19 +266,19 @@ export default function AdminPanel() {
       {stats && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="stat-card border-l-4 border-blue-500">
-            <p className="text-sm font-medium text-gray-600 mb-1">Jami Foydalanuvchilar</p>
+            <p className="text-sm font-medium text-gray-600 mb-1">{t('adminPanelPage.stats.totalUsers')}</p>
             <p className="text-3xl font-bold text-blue-600">{stats.total_users}</p>
           </div>
           <div className="stat-card border-l-4 border-green-500">
-            <p className="text-sm font-medium text-gray-600 mb-1">Faol Foydalanuvchilar</p>
+            <p className="text-sm font-medium text-gray-600 mb-1">{t('adminPanelPage.stats.activeUsers')}</p>
             <p className="text-3xl font-bold text-green-600">{stats.active_users}</p>
           </div>
           <div className="stat-card border-l-4 border-purple-500">
-            <p className="text-sm font-medium text-gray-600 mb-1">Admin Foydalanuvchilar</p>
+            <p className="text-sm font-medium text-gray-600 mb-1">{t('adminPanelPage.stats.adminUsers')}</p>
             <p className="text-3xl font-bold text-purple-600">{stats.admin_users}</p>
           </div>
           <div className="stat-card border-l-4 border-indigo-500">
-            <p className="text-sm font-medium text-gray-600 mb-1">Jami Skanlar</p>
+            <p className="text-sm font-medium text-gray-600 mb-1">{t('adminPanelPage.stats.totalScans')}</p>
             <p className="text-3xl font-bold text-indigo-600">{stats.total_scans}</p>
           </div>
         </div>
@@ -294,7 +296,7 @@ export default function AdminPanel() {
             }`}
           >
             <UserGroupIcon className="h-5 w-5 inline mr-2" />
-            Foydalanuvchilar
+            {t('adminPanelPage.tabs.users')}
           </button>
           <button
             onClick={() => setActiveTab('history')}
@@ -305,7 +307,7 @@ export default function AdminPanel() {
             }`}
           >
             <ClockIcon className="h-5 w-5 inline mr-2" />
-            Kirish Tarixi
+            {t('adminPanelPage.tabs.history')}
           </button>
           <button
             onClick={() => setActiveTab('stats')}
@@ -316,7 +318,7 @@ export default function AdminPanel() {
             }`}
           >
             <ChartBarIcon className="h-5 w-5 inline mr-2" />
-            Statistika
+            {t('adminPanelPage.tabs.stats')}
           </button>
           <button
             onClick={() => setActiveTab('files')}
@@ -327,7 +329,7 @@ export default function AdminPanel() {
             }`}
           >
             <DocumentIcon className="h-5 w-5 inline mr-2" />
-            Fayllar
+            {t('adminPanelPage.tabs.files')}
           </button>
         </div>
 
@@ -348,22 +350,22 @@ export default function AdminPanel() {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        ID
+                        {t('adminPanelPage.table.id')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Email
+                        {t('adminPanelPage.table.email')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Parol
+                        {t('adminPanelPage.table.password')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Holat
+                        {t('adminPanelPage.table.status')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Yaratilgan
+                        {t('adminPanelPage.table.createdAt')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Amallar
+                        {t('adminPanelPage.table.actions')}
                       </th>
                     </tr>
                   </thead>
@@ -376,7 +378,7 @@ export default function AdminPanel() {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {user.email}
                           {user.is_admin && (
-                            <span className="ml-2 badge badge-high">Admin</span>
+                            <span className="ml-2 badge badge-high">{t('adminPanelPage.role.admin')}</span>
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -391,14 +393,14 @@ export default function AdminPanel() {
                                     [user.id]: e.target.value,
                                   }))
                                 }
-                                placeholder="Yangi parol"
+                                placeholder={t('adminPanelPage.newPasswordPlaceholder')}
                                 className="px-2 py-1 border border-gray-300 rounded text-sm w-40"
                                 autoFocus
                               />
                               <button
                                 onClick={() => handleSavePassword(user.id)}
                                 className="text-green-600 hover:text-green-700"
-                                title="Saqlash"
+                                title={t('common.save')}
                                 disabled={updatePasswordMutation.isLoading}
                               >
                                 <CheckCircleIcon className="h-5 w-5" />
@@ -406,7 +408,7 @@ export default function AdminPanel() {
                               <button
                                 onClick={() => handleCancelPasswordEdit(user.id)}
                                 className="text-red-600 hover:text-red-700"
-                                title="Bekor qilish"
+                                title={t('common.cancel')}
                               >
                                 <XCircleIcon className="h-5 w-5" />
                               </button>
@@ -421,7 +423,7 @@ export default function AdminPanel() {
                               <button
                                 onClick={() => togglePasswordVisibility(user.id)}
                                 className="text-blue-600 hover:text-blue-700"
-                                title="Hash'ni ko'rsatish/yashirish"
+                                title={t('adminPanelPage.tooltips.toggleHash')}
                               >
                                 {showPassword[user.id] ? (
                                   <EyeSlashIcon className="h-4 w-4" />
@@ -432,7 +434,7 @@ export default function AdminPanel() {
                               <button
                                 onClick={() => handleEditPassword(user.id)}
                                 className="text-purple-600 hover:text-purple-700"
-                                title="Parolni o'zgartirish"
+                                title={t('adminPanelPage.tooltips.changePassword')}
                               >
                                 <LockClosedIcon className="h-4 w-4" />
                               </button>
@@ -448,7 +450,11 @@ export default function AdminPanel() {
                                   ? 'text-green-600 hover:bg-green-50'
                                   : 'text-red-600 hover:bg-red-50'
                               }`}
-                              title={user.is_active ? 'Faol' : 'Nofaol'}
+                              title={
+                                user.is_active
+                                  ? t('adminPanelPage.status.active')
+                                  : t('adminPanelPage.status.inactive')
+                              }
                             >
                               {user.is_active ? (
                                 <CheckCircleIcon className="h-5 w-5" />
@@ -457,7 +463,7 @@ export default function AdminPanel() {
                               )}
                             </button>
                             <span className={user.is_active ? 'text-green-600' : 'text-red-600'}>
-                              {user.is_active ? 'Faol' : 'Nofaol'}
+                              {user.is_active ? t('adminPanelPage.status.active') : t('adminPanelPage.status.inactive')}
                             </span>
                           </div>
                         </td>
@@ -469,7 +475,7 @@ export default function AdminPanel() {
                             <button
                               onClick={() => setSelectedUser(user.id)}
                               className="text-blue-600 hover:text-blue-700"
-                              title="Faollikni ko'rish"
+                              title={t('adminPanelPage.tooltips.viewActivity')}
                             >
                               <EyeIcon className="h-5 w-5" />
                             </button>
@@ -480,14 +486,16 @@ export default function AdminPanel() {
                                   ? 'text-purple-600 hover:bg-purple-50'
                                   : 'text-gray-600 hover:bg-gray-50'
                               }`}
-                              title={user.is_admin ? 'Admin' : 'Oddiy foydalanuvchi'}
+                              title={
+                                user.is_admin ? t('adminPanelPage.role.admin') : t('adminPanelPage.role.user')
+                              }
                             >
                               <ShieldCheckIcon className="h-5 w-5" />
                             </button>
                             <button
                               onClick={() => handleDeleteUser(user.id)}
                               className="text-red-600 hover:text-red-700"
-                              title="O'chirish"
+                              title={t('common.delete')}
                             >
                               <TrashIcon className="h-5 w-5" />
                             </button>
@@ -500,7 +508,7 @@ export default function AdminPanel() {
               </div>
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-500">Foydalanuvchilar topilmadi</p>
+                <p className="text-gray-500">{t('adminPanelPage.messages.usersNotFound')}</p>
               </div>
             )}
           </div>
@@ -527,14 +535,16 @@ export default function AdminPanel() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-medium text-gray-900">
-                          {log.user_email || 'Noma\'lum'}
+                          {log.user_email || t('adminPanelPage.unknown')}
                         </p>
                         <p className="text-sm text-gray-600">
-                          {log.action === 'login_success' ? 'Muvaffaqiyatli kirish' : 'Kirish xatosi'}
+                          {log.action === 'login_success'
+                            ? t('adminPanelPage.history.loginSuccess')
+                            : t('adminPanelPage.history.loginError')}
                         </p>
                         {log.meta?.reason && (
                           <p className="text-xs text-gray-500 mt-1">
-                            Sabab: {log.meta.reason}
+                            {t('adminPanelPage.history.reasonLabel')}: {log.meta.reason}
                           </p>
                         )}
                       </div>
@@ -549,7 +559,7 @@ export default function AdminPanel() {
               </div>
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-500">Kirish tarixi topilmadi</p>
+                <p className="text-gray-500">{t('adminPanelPage.messages.historyNotFound')}</p>
               </div>
             )}
           </div>
@@ -565,41 +575,41 @@ export default function AdminPanel() {
             ) : stats ? (
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="stat-card border-l-4 border-blue-500">
-                  <p className="text-sm font-medium text-gray-600 mb-1">Jami Foydalanuvchilar</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">{t('adminPanelPage.stats.totalUsers')}</p>
                   <p className="text-3xl font-bold text-blue-600">{stats.total_users}</p>
                 </div>
                 <div className="stat-card border-l-4 border-green-500">
-                  <p className="text-sm font-medium text-gray-600 mb-1">Faol Foydalanuvchilar</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">{t('adminPanelPage.stats.activeUsers')}</p>
                   <p className="text-3xl font-bold text-green-600">{stats.active_users}</p>
                 </div>
                 <div className="stat-card border-l-4 border-purple-500">
-                  <p className="text-sm font-medium text-gray-600 mb-1">Admin Foydalanuvchilar</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">{t('adminPanelPage.stats.adminUsers')}</p>
                   <p className="text-3xl font-bold text-purple-600">{stats.admin_users}</p>
                 </div>
                 <div className="stat-card border-l-4 border-yellow-500">
-                  <p className="text-sm font-medium text-gray-600 mb-1">Tasdiqlangan Foydalanuvchilar</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">{t('adminPanelPage.stats.verifiedUsers')}</p>
                   <p className="text-3xl font-bold text-yellow-600">{stats.verified_users}</p>
                 </div>
                 <div className="stat-card border-l-4 border-indigo-500">
-                  <p className="text-sm font-medium text-gray-600 mb-1">Jami Skanlar</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">{t('adminPanelPage.stats.totalScans')}</p>
                   <p className="text-3xl font-bold text-indigo-600">{stats.total_scans}</p>
                 </div>
                 <div className="stat-card border-l-4 border-red-500">
-                  <p className="text-sm font-medium text-gray-600 mb-1">Jami Topilmalar</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">{t('adminPanelPage.stats.totalFindings')}</p>
                   <p className="text-3xl font-bold text-red-600">{stats.total_findings}</p>
                 </div>
                 <div className="stat-card border-l-4 border-teal-500">
-                  <p className="text-sm font-medium text-gray-600 mb-1">Jami Sensitive Items</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">{t('adminPanelPage.stats.totalSensitiveItems')}</p>
                   <p className="text-3xl font-bold text-teal-600">{stats.total_sensitive_items}</p>
                 </div>
                 <div className="stat-card border-l-4 border-pink-500">
-                  <p className="text-sm font-medium text-gray-600 mb-1">Ulangan Hisoblar</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">{t('adminPanelPage.stats.connectedAccounts')}</p>
                   <p className="text-3xl font-bold text-pink-600">{stats.total_connected_accounts}</p>
                 </div>
               </div>
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-500">Statistika topilmadi</p>
+                <p className="text-gray-500">{t('adminPanelPage.messages.statsNotFound')}</p>
               </div>
             )}
           </div>
@@ -617,11 +627,13 @@ export default function AdminPanel() {
               <XMarkIcon className="h-6 w-6" />
             </button>
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Foydalanuvchi Faolligi: {userActivity.user?.email}
+              {t('adminPanelPage.activity.userActivityTitle', { email: userActivity.user?.email })}
             </h3>
             <div className="space-y-6">
               <div>
-                <h4 className="font-semibold text-gray-900 mb-2">Skanlar ({userActivity.scans?.length || 0})</h4>
+                <h4 className="font-semibold text-gray-900 mb-2">
+                  {t('adminPanelPage.activity.scansTitle', { count: userActivity.scans?.length || 0 })}
+                </h4>
                 <div className="space-y-2">
                   {userActivity.scans?.map((scan) => (
                     <div key={scan.id} className="p-3 bg-gray-50 rounded-lg">
@@ -634,7 +646,11 @@ export default function AdminPanel() {
                 </div>
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900 mb-2">Topilmalar ({userActivity.findings?.length || 0})</h4>
+                <h4 className="font-semibold text-gray-900 mb-2">
+                  {t('adminPanelPage.activity.findingsTitle', {
+                    count: userActivity.findings?.length || 0,
+                  })}
+                </h4>
                 <div className="space-y-2">
                   {userActivity.findings?.map((finding) => (
                     <div key={finding.id} className="p-3 bg-gray-50 rounded-lg">
@@ -648,7 +664,9 @@ export default function AdminPanel() {
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">
-                  Kirish Tarixi ({userActivity.login_history?.length || 0})
+                  {t('adminPanelPage.activity.loginHistoryTitle', {
+                    count: userActivity.login_history?.length || 0,
+                  })}
                 </h4>
                 <div className="space-y-2">
                   {userActivity.login_history?.map((log) => (
@@ -659,7 +677,11 @@ export default function AdminPanel() {
                       }`}
                     >
                       <p className="text-sm">
-                        {log.action === 'login_success' ? 'Muvaffaqiyatli' : 'Xatolik'} -{' '}
+                        {log.action === 'login_success'
+                          ? t('adminPanelPage.history.loginSuccessShort')
+                          : t('adminPanelPage.history.loginErrorShort')}
+                        {' '}
+                        -{' '}
                         {formatKST(log.timestamp, 'd MMM, yyyy HH:mm')}
                       </p>
                     </div>

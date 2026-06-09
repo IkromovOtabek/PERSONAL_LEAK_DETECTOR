@@ -141,33 +141,26 @@ export default function Findings() {
       onSuccess: () => {
         queryClient.invalidateQueries('findings');
         queryClient.refetchQueries('findings'); // Avtomatik yangilash
-        alert('Xabar muvaffaqiyatli o\'chirildi');
+        alert(t('findings.alertMessageDeleted'));
       },
       onError: (error) => {
         console.error('Delete message error:', error);
-        const errorMessage = error.response?.data?.detail || error.message || 'Xatolik yuz berdi';
+        const errorMessage = error.response?.data?.detail || error.message || t('common.error');
         
         if (error.response?.status === 403) {
           // Backend'dan kelgan batafsil xato xabarini ko'rsatish
           const detail = error.response?.data?.detail || '';
           
           // Batafsil xato xabarini ko'rsatish
-          const fullMessage = detail || 'Xabarni o\'chirish uchun yetarli ruxsat yo\'q.';
+          const fullMessage = detail || t('findings.errorInsufficientPermissionDelete');
           
-          alert(
-            `❌ Xatolik: ${fullMessage}\n\n` +
-            `📋 Yechim:\n` +
-            `1. Settings sahifasiga o'ting\n` +
-            `2. Gmail hisobingizni o'chirib tashlang\n` +
-            `3. Gmail hisobini qayta ulang\n` +
-            `4. Google'da ruxsat berishda BARCHA scope'larni tanlang (gmail.modify ham!)`
-          );
+          alert(t('findings.error403Help', { detail: fullMessage }));
         } else if (error.response?.status === 401) {
-          alert('❌ Xatolik: Token eskirgan. Iltimos, qayta login qiling.');
+          alert(t('findings.errorTokenExpired'));
         } else if (error.response?.status === 404) {
-          alert('❌ Xatolik: Xabar topilmadi. Xabar allaqachon o\'chirilgan bo\'lishi mumkin.');
+          alert(t('findings.errorMessageNotFound'));
         } else {
-          alert(`❌ Xatolik: ${errorMessage}`);
+          alert(t('findings.errorGenericWithDetail', { detail: String(errorMessage) }));
         }
       },
     }
@@ -182,33 +175,26 @@ export default function Findings() {
       onSuccess: () => {
         queryClient.invalidateQueries('findings');
         queryClient.refetchQueries('findings'); // Avtomatik yangilash
-        alert('Xabar spam sifatida belgilandi');
+        alert(t('findings.alertMessageMarkedSpam'));
       },
       onError: (error) => {
         console.error('Spam message error:', error);
-        const errorMessage = error.response?.data?.detail || error.message || 'Xatolik yuz berdi';
+        const errorMessage = error.response?.data?.detail || error.message || t('common.error');
         
         if (error.response?.status === 403) {
           // Backend'dan kelgan batafsil xato xabarini ko'rsatish
           const detail = error.response?.data?.detail || '';
           
           // Batafsil xato xabarini ko'rsatish
-          const fullMessage = detail || 'Xabarni spam sifatida belgilash uchun yetarli ruxsat yo\'q.';
+          const fullMessage = detail || t('findings.errorInsufficientPermissionSpam');
           
-          alert(
-            `❌ Xatolik: ${fullMessage}\n\n` +
-            `📋 Yechim:\n` +
-            `1. Settings sahifasiga o'ting\n` +
-            `2. Gmail hisobingizni o'chirib tashlang\n` +
-            `3. Gmail hisobini qayta ulang\n` +
-            `4. Google'da ruxsat berishda BARCHA scope'larni tanlang (gmail.modify ham!)`
-          );
+          alert(t('findings.error403Help', { detail: fullMessage }));
         } else if (error.response?.status === 401) {
-          alert('❌ Xatolik: Token eskirgan. Iltimos, qayta login qiling.');
+          alert(t('findings.errorTokenExpired'));
         } else if (error.response?.status === 404) {
-          alert('❌ Xatolik: Xabar topilmadi. Xabar allaqachon o\'chirilgan bo\'lishi mumkin.');
+          alert(t('findings.errorMessageNotFound'));
         } else {
-          alert(`❌ Xatolik: ${errorMessage}`);
+          alert(t('findings.errorGenericWithDetail', { detail: String(errorMessage) }));
         }
       },
     }
@@ -364,18 +350,18 @@ export default function Findings() {
     } catch (error) {
       console.error('Error opening Gmail:', error);
       // Show alert if popup blocked or other error
-      alert('Gmail oynasini ochishda xatolik yuz berdi. Iltimos, brauzer sozlamalarini tekshiring.');
+      alert(t('findings.errorOpenGmailWindow'));
     }
   };
 
   const handleDeleteMessage = (messageId) => {
-    if (window.confirm('Bu xabarni o\'chirishni xohlaysizmi?')) {
+    if (window.confirm(t('findings.confirmDeleteMessage'))) {
       deleteMessageMutation.mutate(messageId);
     }
   };
 
   const handleSpamMessage = (messageId) => {
-    if (window.confirm('Bu xabarni spam sifatida belgilashni xohlaysizmi?')) {
+    if (window.confirm(t('findings.confirmMarkSpam'))) {
       spamMessageMutation.mutate(messageId);
     }
   };
@@ -564,14 +550,14 @@ export default function Findings() {
                               <button
                                 onClick={() => openGmailMessage(gmailInfo.messageId, gmailInfo.threadId, gmailInfo.messageIdHeader, gmailInfo)}
                                 className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                title="Gmail'da ochish"
+                                title={t('findings.tooltipOpenInGmail')}
                               >
                                 <EyeIcon className="h-5 w-5" />
                               </button>
                             <button
                               onClick={() => handleSpamMessage(gmailInfo.messageId)}
                               className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                              title="Spam sifatida belgilash"
+                              title={t('findings.tooltipMarkSpam')}
                               disabled={spamMessageMutation.isLoading}
                             >
                               <ShieldExclamationIcon className="h-5 w-5" />
@@ -579,7 +565,7 @@ export default function Findings() {
                             <button
                               onClick={() => handleDeleteMessage(gmailInfo.messageId)}
                               className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                              title="O'chirish"
+                              title={t('findings.tooltipDelete')}
                               disabled={deleteMessageMutation.isLoading}
                             >
                               <TrashIcon className="h-5 w-5" />
@@ -594,7 +580,7 @@ export default function Findings() {
                         onClick={() => resolveMutation.mutate({ id: finding.id, resolved: true })}
                         className="btn-primary whitespace-nowrap"
                       >
-                        Yechilgan Deb Belgilash
+                        {t('findings.markResolved')}
                       </button>
                     )}
                   </div>
@@ -630,41 +616,11 @@ export default function Findings() {
                 <div className="flex items-start space-x-3 mb-3">
                   <InformationCircleIcon className="h-6 w-6 text-yellow-600 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <h3 className="text-lg font-bold text-yellow-900 mb-2">Topilmalarni Ko'rish va Boshqarish</h3>
-                    <div className="space-y-2 text-sm text-yellow-800">
-                      <p><strong>Maqsad:</strong> Aniqlangan shaxsiy ma'lumotlar oqib ketishlarini ko'rish va boshqarish</p>
-                      <p><strong>Qanday ko'rish:</strong></p>
-                      <ol className="list-decimal list-inside ml-2 space-y-1">
-                        <li>Navigation bar'da "Topilmalar" bo'limiga o'ting</li>
-                        <li>Barcha topilmalar ro'yxatda ko'rinadi</li>
-                        <li>Har bir topilma quyidagi ma'lumotlarni ko'rsatadi:
-                          <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
-                            <li><strong>Turi:</strong> Aniqlangan ma'lumot turi (Email, Telefon, va hokazo)</li>
-                            <li><strong>Daraja:</strong> Yuqori, O'rtacha yoki Past</li>
-                            <li><strong>Matn qismi:</strong> Topilgan joyning ko'rinishi</li>
-                            <li><strong>Manba:</strong> Qayerdan topilgan (fayl, email, va hokazo)</li>
-                            <li><strong>Vaqt:</strong> Qachon topilgan</li>
-                          </ul>
-                        </li>
-                      </ol>
-                      <p className="mt-2"><strong>Filtrlash:</strong></p>
-                      <ul className="list-disc list-inside ml-4 space-y-1">
-                        <li><strong>Daraja:</strong> Barcha, Yuqori, O'rtacha yoki Past</li>
-                        <li><strong>Holat:</strong> Barcha, Yechilmagan yoki Yechilgan</li>
-                      </ul>
-                      <p className="mt-2"><strong>Yechilgan deb belgilash:</strong></p>
-                      <ol className="list-decimal list-inside ml-2 space-y-1">
-                        <li>Topilma yonidagi "Yechilgan Deb Belgilash" tugmasini bosing</li>
-                        <li>Topilma "Yechilgan" holatiga o'tadi</li>
-                        <li>Yechilgan topilmalar filtrda ko'rinmaydi (agar "Yechilmagan" tanlangan bo'lsa)</li>
-                      </ol>
-                      <p className="mt-2"><strong>Gmail xabarlari uchun:</strong></p>
-                      <ul className="list-disc list-inside ml-4 space-y-1">
-                        <li><strong>Gmail'da ochish:</strong> Xabarni Gmail'da ochish uchun ko'z ikonkasini bosing</li>
-                        <li><strong>Spam sifatida belgilash:</strong> Xabarni spam sifatida belgilash uchun qalqon ikonkasini bosing</li>
-                        <li><strong>O'chirish:</strong> Xabarni o'chirish uchun quti ikonkasini bosing</li>
-                      </ul>
-                    </div>
+                    <h3 className="text-lg font-bold text-yellow-900 mb-2">{t('findings.guideHeading')}</h3>
+                    <div
+                      className="space-y-2 text-sm text-yellow-800"
+                      dangerouslySetInnerHTML={{ __html: t('findings.guideHtml') }}
+                    />
                   </div>
                 </div>
               </div>
@@ -675,7 +631,7 @@ export default function Findings() {
                 onClick={() => setShowGuideModal(false)}
                 className="btn-primary px-6 py-2"
               >
-                Yopish
+                {t('common.close')}
               </button>
             </div>
           </div>

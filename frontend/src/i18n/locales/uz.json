@@ -43,6 +43,75 @@
     "safeshare": "SafeShare",
     "encryption": "Shifrlash"
   },
+  "adminPanelPage": {
+    "title": "Admin Panel",
+    "subtitle": "Barcha foydalanuvchilarni boshqarish va tizim statistikasini ko'rish",
+    "exitTitle": "Admin paneldan chiqish",
+    "exitLabel": "Chiqish",
+    "logoutTitle": "Tizimdan chiqish",
+    "tabs": {
+      "users": "Foydalanuvchilar",
+      "history": "Kirish Tarixi",
+      "stats": "Statistika",
+      "files": "Fayllar"
+    },
+    "table": {
+      "id": "ID",
+      "email": "Email",
+      "password": "Parol",
+      "status": "Holat",
+      "createdAt": "Yaratilgan",
+      "actions": "Amallar"
+    },
+    "newPasswordPlaceholder": "Yangi parol",
+    "tooltips": {
+      "toggleHash": "Hash'ni ko'rsatish/yashirish",
+      "changePassword": "Parolni o'zgartirish",
+      "viewActivity": "Faollikni ko'rish"
+    },
+    "status": {
+      "active": "Faol",
+      "inactive": "Nofaol"
+    },
+    "role": {
+      "admin": "Admin",
+      "user": "Oddiy foydalanuvchi"
+    },
+    "confirmDeleteUser": "Bu foydalanuvchini o'chirishni xohlaysizmi?",
+    "passwordMin6": "Parol kamida 6 belgidan iborat bo'lishi kerak",
+    "unknown": "Noma'lum",
+    "errors": {
+      "noPermission": "Admin ruxsati yo'q"
+    },
+    "messages": {
+      "usersNotFound": "Foydalanuvchilar topilmadi",
+      "historyNotFound": "Kirish tarixi topilmadi",
+      "statsNotFound": "Statistika topilmadi"
+    },
+    "stats": {
+      "totalUsers": "Jami Foydalanuvchilar",
+      "activeUsers": "Faol Foydalanuvchilar",
+      "adminUsers": "Admin Foydalanuvchilar",
+      "verifiedUsers": "Tasdiqlangan Foydalanuvchilar",
+      "totalScans": "Jami Skanlar",
+      "totalFindings": "Jami Topilmalar",
+      "totalSensitiveItems": "Jami Sensitive Items",
+      "connectedAccounts": "Ulangan Hisoblar"
+    },
+    "history": {
+      "loginSuccess": "Muvaffaqiyatli kirish",
+      "loginError": "Kirish xatosi",
+      "reasonLabel": "Sabab",
+      "loginSuccessShort": "Muvaffaqiyatli",
+      "loginErrorShort": "Xatolik"
+    },
+    "activity": {
+      "userActivityTitle": "Foydalanuvchi Faolligi: {{email}}",
+      "scansTitle": "Skanlar ({{count}})",
+      "findingsTitle": "Topilmalar ({{count}})",
+      "loginHistoryTitle": "Kirish Tarixi ({{count}})"
+    }
+  },
   "login": {
     "title": "Xush Kelibsiz",
     "subtitle": "Davom etish uchun hisobingizga kiring",
@@ -54,7 +123,9 @@
     "submitting": "Kirilmoqda...",
     "noAccount": "Hisobingiz yo'qmi?",
     "createAccount": "Hozir yarating",
-    "loginFailed": "Kirish muvaffaqiyatsiz"
+    "loginFailed": "Kirish muvaffaqiyatsiz",
+    "continueWithGoogle": "Google bilan davom etish",
+    "orContinueWith": "yoki"
   },
   "register": {
     "title": "Hisobingizni Yarating",
@@ -276,7 +347,24 @@
     "noFindings": "Topilmalar topilmadi",
     "noFindingsDesc": "Filtrlarni o'zgartiring yoki yangi skan boshlang",
     "userGuide": "Foydalanish qo'llanmasi",
-    "guideTitle": "Topilmalarni Ko'rish va Boshqarish Qo'llanmasi"
+    "guideTitle": "Topilmalarni Ko'rish va Boshqarish Qo'llanmasi",
+    "guideHeading": "Topilmalarni Ko'rish va Boshqarish",
+    "guideHtml": "<p><strong>Maqsad:</strong> Aniqlangan shaxsiy ma'lumotlar oqib ketishlarini ko'rish va boshqarish</p><p><strong>Qanday ko'rish:</strong></p><ol class='list-decimal list-inside ml-2 space-y-1'><li>Navigation bar'da \\\"Topilmalar\\\" bo'limiga o'ting</li><li>Barcha topilmalar ro'yxatda ko'rinadi</li><li>Har bir topilma turi, darajasi, matn qismi (snippet), manbasi va topilgan vaqti bilan ko'rsatiladi</li></ol><p class='mt-2'><strong>Filtrlash:</strong> Daraja (Yuqori/O'rtacha/Past) va holat (Yechilmagan/Yechilgan) bo'yicha filtrlang.</p><p class='mt-2'><strong>Yechilgan deb belgilash:</strong> Topilma yonidagi tugma orqali holatini \\\"Yechilgan\\\" qilib belgilang.</p><p class='mt-2'><strong>Gmail xabarlari:</strong> Ko'z ikonka — Gmail'da ochish, qalqon ikonka — spam, quti ikonka — o'chirish.</p>",
+    "tooltipOpenInGmail": "Gmail'da ochish",
+    "tooltipMarkSpam": "Spam sifatida belgilash",
+    "tooltipDelete": "O'chirish",
+    "markResolved": "Yechilgan Deb Belgilash",
+    "alertMessageDeleted": "Xabar muvaffaqiyatli o'chirildi",
+    "alertMessageMarkedSpam": "Xabar spam sifatida belgilandi",
+    "confirmDeleteMessage": "Bu xabarni o'chirishni xohlaysizmi?",
+    "confirmMarkSpam": "Bu xabarni spam sifatida belgilashni xohlaysizmi?",
+    "errorTokenExpired": "❌ Xatolik: Token eskirgan. Iltimos, qayta login qiling.",
+    "errorMessageNotFound": "❌ Xatolik: Xabar topilmadi. Xabar allaqachon o'chirilgan bo'lishi mumkin.",
+    "errorOpenGmailWindow": "Gmail oynasini ochishda xatolik yuz berdi. Iltimos, brauzer sozlamalarini tekshiring.",
+    "errorInsufficientPermissionDelete": "Xabarni o'chirish uchun yetarli ruxsat yo'q.",
+    "errorInsufficientPermissionSpam": "Xabarni spam sifatida belgilash uchun yetarli ruxsat yo'q.",
+    "error403Help": "❌ Xatolik: {{detail}}\\n\\n📋 Yechim:\\n1. Settings sahifasiga o'ting\\n2. Gmail hisobingizni o'chirib tashlang\\n3. Gmail hisobini qayta ulang\\n4. Google'da ruxsat berishda BARCHA scope'larni tanlang (gmail.modify ham!)",
+    "errorGenericWithDetail": "❌ Xatolik: {{detail}}"
   },
   "settings": {
     "title": "Sozlamalar",
@@ -308,7 +396,70 @@
     "changeEmailButton": "Emailni o'zgartirish",
     "lastSync": "Oxirgi sinxronlash",
     "loginRequired": "Gmail hisobini ulash uchun avval login qiling",
-    "confirmAnalyze": "\"{{email}}\" Gmail hisobini tahlil qilishni boshlashni xohlaysizmi?"
+    "confirmAnalyze": "\"{{email}}\" Gmail hisobini tahlil qilishni boshlashni xohlaysizmi?",
+    "scanNotFound": "Tahlil topilmadi yoki allaqachon tugagan.",
+    "confirmCancelScan": "Tahlilni bekor qilishni xohlaysizmi?",
+    "cancelScanError": "Tahlilni bekor qilishda xatolik",
+    "modifyScopeNoticeTitle": "Muhim: Xabarlarni o'chirish va spam sifatida belgilash uchun",
+    "modifyScopeNoticeBodyHtml": "Agar siz Gmail xabarlarini o'chirish yoki spam sifatida belgilash funksiyalaridan foydalanmoqchi bo'lsangiz, Gmail hisobingizni <strong>qayta ulashingiz</strong> kerak. Bu yangi <code class='bg-orange-100 px-1 rounded'>gmail.modify</code> scope'ini qo'shadi.",
+    "modifyScopeNoticeHowToHtml": "<strong>Qanday qilish:</strong> Quyidagi ro'yxatdan Gmail hisobingizni o'chirib tashlang, keyin \"Gmail Hisobini Ulash (OAuth)\" tugmasini bosing va qayta ulang.",
+    "gmailGuideTitle": "Gmail Hisobini Ulash Qo'llanmasi",
+    "gmailGuideCardTitle": "Gmail Hisobini Ulash (Ixtiyoriy)",
+    "gmailGuideHtml": "<p><strong>Maqsad:</strong> Gmail xabarlarida shaxsiy ma'lumotlaringiz oqib ketganini aniqlash</p><p class='mt-3'><strong>📋 Google Cloud Console'da Credentials olish (0 dan boshlab):</strong></p><ol class='list-decimal list-inside ml-2 space-y-2'><li><strong>Google Cloud Console'ga kirish:</strong><ul class='list-disc list-inside ml-4 mt-1 space-y-1'><li>Google Cloud Console: <a href='https://console.cloud.google.com/' target='_blank' rel='noopener noreferrer' class='text-blue-600 underline font-medium'>https://console.cloud.google.com/</a></li><li>Google hisobingiz bilan login qiling</li></ul></li><li><strong>Gmail API'ni yoqish:</strong><ul class='list-disc list-inside ml-4 mt-1 space-y-1'><li>APIs &amp; Services → Library → Gmail API → ENABLE</li><li>2–3 daqiqa kuting</li></ul></li><li><strong>OAuth consent screen:</strong><ul class='list-disc list-inside ml-4 mt-1 space-y-1'><li>User type: External</li><li>Scopes: gmail.readonly, <b>gmail.modify</b>, userinfo.email, userinfo.profile</li><li>Testing bo'lsa: Test users qo'shing</li></ul></li><li><strong>Credentials yaratish:</strong><ul class='list-disc list-inside ml-4 mt-1 space-y-1'><li>APIs &amp; Services → Credentials → OAuth client ID (Web application)</li><li>Redirect URI: <code class='bg-pink-100 px-1 rounded text-xs'>http://localhost:8000/api/v1/oauth/gmail/callback</code></li></ul></li><li><strong>credentials.json yuklab oling</strong> va <code class='bg-pink-100 px-1 rounded'>credentials.json</code> deb nomlang</li></ol><p class='mt-3'><strong>📤 credentials.json yuklash:</strong></p><ol class='list-decimal list-inside ml-2 space-y-1'><li>Sozlamalar → Credentials.json Yuklash</li><li>Faylni tanlab yuklang</li><li>So'ng \"Gmail Hisobini Ulash (OAuth)\" ni bosing</li></ol><p class='mt-3'><strong>🔍 Gmail tahlil:</strong></p><ol class='list-decimal list-inside ml-2 space-y-1'><li>Ulangan hisob yonidagi 🔍 tugmani bosing</li><li>Natijalar: <b>Topilmalar</b> va <b>Skanlar</b> sahifalarida</li></ol><p class='mt-2'><strong>Muammo yechish:</strong></p><ul class='list-disc list-inside ml-2 space-y-1'><li><b>accessNotConfigured</b>: Gmail API yoqilmagan bo'lishi mumkin</li><li><b>redirect_uri_mismatch</b>: redirect URI ni console'ga qo'shing</li><li><b>403 access_denied</b>: Testing bo'lsa test user qo'shing yoki Production'ga chiqaring</li></ul>",
+    "scanRunningTitle": "Gmail Tahlil Qilinmoqda",
+    "stopScan": "Tahlilni to'xtatish",
+    "scanRunningFor": "{{email}} hisobi tahlil qilinmoqda",
+    "pleaseWait": "Iltimos, kuting. Bu biroz vaqt olishi mumkin...",
+    "scanningInProgress": "Tahlil jarayonida...",
+    "backStop": "Ortga (To'xtatish)",
+    "cannotCloseWhileRunning": "Tahlil tugamaguncha yopib bo'lmaydi",
+    "scanCompletedTitle": "Gmail Tahlil Tugallandi",
+    "completedSuccess": "Muvaffaqiyatli yakunlandi!",
+    "totalMessages": "Jami xabar",
+    "dangerous": "Xavfli",
+    "other": "Boshqa",
+    "whereToSeeResults": "📋 Tahlil natijalarini qayerdan ko'rish mumkin?",
+    "resultsLine1Html": "• <strong>Topilmalar</strong> sahifasida barcha topilgan xabarlarni ko'rishingiz mumkin",
+    "resultsLine2Html": "• <strong>Skanlar</strong> sahifasida barcha tahlil tarixini ko'rishingiz mumkin",
+    "resultsLine3Html": "• <strong>Boshqaruv Paneli</strong> sahifasida umumiy statistikani ko'rishingiz mumkin",
+    "viewFindings": "Topilmalarni Ko'rish",
+    "scanFailedTitle": "Gmail Tahlil Muvaffaqiyatsiz",
+    "scanCancelledTitle": "Gmail Tahlil Bekor Qilindi",
+    "cancelled": "Tahlil bekor qilindi",
+    "scanCancelledFallback": "Tahlil bekor qilindi.",
+    "scanCancelledSuccess": "Tahlil muvaffaqiyatli bekor qilindi.",
+    "notificationScanCompletedTitle": "Gmail Tahlil Tugallandi",
+    "notificationScanCompletedFallback": "Gmail tahlil tugallandi!",
+    "notificationScanFailedTitle": "Gmail Tahlil Muvaffaqiyatsiz",
+    "notificationScanFailedFallback": "Gmail tahlil muvaffaqiyatsiz",
+    "scanError": "Gmail tahlil qilishda xatolik",
+    "connectGmailError": "Gmail hisobini ulashda xatolik",
+    "gmailOAuthNotConfigured": "Gmail OAuth sozlanmagan. Iltimos, avval credentials.json yuklang.",
+    "credentialsUploadSuccessAlert": "Credentials.json muvaffaqiyatli yuklandi! Endi Gmail hisobini ulashingiz mumkin.",
+    "credentialsLoginRequired": "Credentials.json yuklash uchun avval login qiling",
+    "credentialsUploadError": "Credentials.json yuklashda xatolik",
+    "credentialsSelectFile": "Iltimos, credentials.json faylini tanlang",
+    "tokenUploadSuccessAlert": "Token.json muvaffaqiyatli yuklandi va Gmail hisob ulandi!",
+    "tokenLoginRequired": "Token.json yuklash uchun avval login qiling",
+    "tokenUploadError": "Token.json yuklashda xatolik",
+    "tokenSelectFile": "Iltimos, token.json faylini tanlang",
+    "confirmDisconnect": "Bu hisobni uzishni xohlaysizmi?",
+    "failed": "Tahlil muvaffaqiyatsiz yakunlandi",
+    "scanErrorGeneric": "Tahlil qilishda xatolik yuz berdi",
+    "passwordsDoNotMatch": "Parollar mos kelmaydi!",
+    "fillAllFields": "Iltimos, barcha maydonlarni to'ldiring!",
+    "passwordMin8": "Yangi parol kamida 8 belgidan iborat bo'lishi kerak!",
+    "invalidEmail": "Iltimos, to'g'ri email manzil kiriting!",
+    "changeEmailTitle": "Emailni o'zgartirish",
+    "newEmailLabel": "Yangi email",
+    "newEmailPlaceholder": "Yangi email manzilingizni kiriting",
+    "confirmPasswordLabel": "Parolni tasdiqlash",
+    "confirmPasswordPlaceholder": "Parolingizni kiriting (tasdiqlash uchun)",
+    "changeEmailNote": "⚠️ Eslatma: Email o'zgargandan so'ng, yangi email bilan login qilishingiz kerak bo'ladi.",
+    "passwordChangedSuccess": "Parol muvaffaqiyatli o'zgartirildi!",
+    "changePasswordError": "Parolni o'zgartirishda xatolik yuz berdi",
+    "emailChangedSuccess": "Email muvaffaqiyatli o'zgartirildi! Yangi email: {{email}}",
+    "changeEmailError": "Emailni o'zgartirishda xatolik yuz berdi"
   },
   "filevault": {
     "title": "Shaxsiy fayllarni shifrlash tizimi",

@@ -6,8 +6,12 @@ from app.schemas.user import UserCreate, UserLogin, Token, UserResponse
 from app.models.user import User
 from datetime import timedelta
 from app.core.config import settings
+import base64
 
 router = APIRouter()
+
+# Continue with Google: login + Gmail access in one flow (no credentials.json from user)
+GOOGLE_LOGIN_STATE = "login"
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
@@ -125,4 +129,56 @@ def login(user_data: UserLogin, db: Session = Depends(get_db)):
         raise
     except Exception as e:
         raise
+
+
+@router.get("/google")
+def google_login():
+    """
+    Continue with Google: return authorization_url for OAuth.
+    User clicks this → redirects to Google (login + Gmail scopes) → callback creates/finds user, saves Gmail token, redirects to frontend with JWT.
+    credentials.json is NOT requested from user; server uses GMAIL_CLIENT_ID/SECRET from env or credentials file.
+    """
+    try:
+        from google_auth_oauthlib.flow import Flow
+    except ImportError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="OAuth libraries not installed"
+        )
+    if not settings.GMAIL_CLIENT_ID or not settings.GMAIL_CLIENT_SECRET:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Gmail OAuth not configured (set GMAIL_CLIENT_ID and GMAIL_CLIENT_SECRET or add credentials.json)"
+        )
+    redirect_uri = settings.GMAIL_REDIRECT_URI
+    if not redirect_uri:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="GMAIL_REDIRECT_URI not set")
+    scopes = [
+        "openid",
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/gmail.readonly",
+        "https://www.googleapis.com/auth/gmail.modify",
+    ]
+    flow = Flow.from_client_config(
+        {
+            "web": {
+                "client_id": settings.GMAIL_CLIENT_ID,
+                "client_secret": settings.GMAIL_CLIENT_SECRET,
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+                "redirect_uris": [redirect_uri],
+            }
+        },
+        scopes=scopes,
+    )
+    flow.redirect_uri = redirect_uri
+    state = base64.urlsafe_b64encode(GOOGLE_LOGIN_STATE.encode()).decode()
+    authorization_url, _ = flow.authorization_url(
+        access_type="offline",
+        include_granted_scopes="true",
+        prompt="consent",
+        state=state,
+    )
+    return {"authorization_url": authorization_url}
 

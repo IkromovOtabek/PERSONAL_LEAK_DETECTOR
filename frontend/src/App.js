@@ -16,6 +16,7 @@ import AdminPanel from './pages/AdminPanel';
 import EncryptedDownload from './pages/EncryptedDownload';
 import EncryptionExample from './components/EncryptionExample';
 import Layout from './components/Layout';
+import AuthCallback from './pages/AuthCallback';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,6 +40,7 @@ function App() {
             {/* Ochiq route'lar */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/encrypted-download/:token" element={<EncryptedDownload />} />
             
             {/* Default route - redirect to login */}

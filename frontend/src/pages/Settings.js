@@ -119,7 +119,7 @@ export default function Settings() {
     },
     {
       onSuccess: () => {
-        setSuccessMessage('Parol muvaffaqiyatli o\'zgartirildi!');
+        setSuccessMessage(t('settings.passwordChangedSuccess'));
         setShowPasswordModal(false);
         setCurrentPassword('');
         setNewPassword('');
@@ -127,8 +127,8 @@ export default function Settings() {
         setTimeout(() => setSuccessMessage(''), 5000);
       },
       onError: (error) => {
-        const errorMessage = error.response?.data?.detail || error.message || 'Parolni o\'zgartirishda xatolik yuz berdi';
-        alert(`❌ Xatolik: ${errorMessage}`);
+        const errorMessage = error.response?.data?.detail || error.message || t('settings.changePasswordError');
+        alert(`${t('common.error')}: ${errorMessage}`);
       },
     }
   );
@@ -144,7 +144,7 @@ export default function Settings() {
     },
     {
       onSuccess: (data) => {
-        setSuccessMessage(`Email muvaffaqiyatli o'zgartirildi! Yangi email: ${data.new_email || newEmail}`);
+        setSuccessMessage(t('settings.emailChangedSuccess', { email: data.new_email || newEmail }));
         setShowEmailModal(false);
         setNewEmail('');
         setEmailPassword('');
@@ -153,8 +153,8 @@ export default function Settings() {
         queryClient.invalidateQueries('user');
       },
       onError: (error) => {
-        const errorMessage = error.response?.data?.detail || error.message || 'Emailni o\'zgartirishda xatolik yuz berdi';
-        alert(`❌ Xatolik: ${errorMessage}`);
+        const errorMessage = error.response?.data?.detail || error.message || t('settings.changeEmailError');
+        alert(`${t('common.error')}: ${errorMessage}`);
       },
     }
   );
@@ -275,12 +275,12 @@ export default function Settings() {
       if (e.key === 'gmail-scan-completed' && e.newValue) {
         try {
           const scanData = JSON.parse(e.newValue);
-          const message = scanData.message || 'Gmail tahlil tugallandi!';
+          const message = scanData.message || t('settings.notificationScanCompletedFallback');
           
           // Show notification
           if ('Notification' in window && Notification.permission === 'granted') {
             try {
-              const notification = new Notification('Gmail Tahlil Tugallandi', {
+              const notification = new Notification(t('settings.notificationScanCompletedTitle'), {
                 body: message,
                 icon: '/favicon.svg',
                 badge: '/favicon.svg',
@@ -310,12 +310,12 @@ export default function Settings() {
       } else if (e.key === 'gmail-scan-failed' && e.newValue) {
         try {
           const scanData = JSON.parse(e.newValue);
-          const errorMessage = scanData.message || 'Gmail tahlil muvaffaqiyatsiz';
+          const errorMessage = scanData.message || t('settings.notificationScanFailedFallback');
           
           // Show notification
           if ('Notification' in window && Notification.permission === 'granted') {
             try {
-              const notification = new Notification('Gmail Tahlil Muvaffaqiyatsiz', {
+              const notification = new Notification(t('settings.notificationScanFailedTitle'), {
                 body: errorMessage,
                 icon: '/favicon.svg',
                 badge: '/favicon.svg',
@@ -571,7 +571,7 @@ export default function Settings() {
       } else if (scan.status === 'cancelled' && scanStatus !== 'cancelled') {
         // Scan cancelled but modal not updated yet
         setScanStatus('cancelled');
-        const cancelledResult = { message: 'Tahlil bekor qilindi.' };
+        const cancelledResult = { message: t('settings.scanCancelledFallback') };
         setScanResult(cancelledResult);
         
         // Save modal state to localStorage (cancelled state)
@@ -832,7 +832,7 @@ export default function Settings() {
         // Show browser notification (works in all tabs/windows)
         if ('Notification' in window && Notification.permission === 'granted') {
           try {
-            const notification = new Notification('Gmail Tahlil Tugallandi', {
+            const notification = new Notification(t('settings.notificationScanCompletedTitle'), {
               body: message,
               icon: '/favicon.svg',
               badge: '/favicon.svg',
@@ -906,7 +906,7 @@ export default function Settings() {
       } else if (latestScan && latestScan.status === 'cancelled') {
         // Scan cancelled - update modal
         setScanStatus('cancelled');
-        const cancelledResult = { message: 'Tahlil bekor qilindi.' };
+        const cancelledResult = { message: t('settings.scanCancelledFallback') };
         setScanResult(cancelledResult);
         
         // Save modal state to localStorage (cancelled state)
@@ -1015,7 +1015,7 @@ export default function Settings() {
         queryClient.refetchQueries('scans'); // Avtomatik yangilash
       },
       onError: (error) => {
-        const errorMessage = error.response?.data?.detail || 'Gmail tahlil qilishda xatolik';
+        const errorMessage = error.response?.data?.detail || t('settings.scanError');
         setUploadError(errorMessage);
         setScanningAccount(null);
         setCurrentScanId(null);
@@ -1037,7 +1037,7 @@ export default function Settings() {
 
   const handleGmailConnect = async () => {
     if (!hasToken) {
-      alert('Gmail hisobini ulash uchun avval login qiling');
+      alert(t('settings.loginRequired'));
       return;
     }
     
@@ -1046,11 +1046,11 @@ export default function Settings() {
       window.location.href = response.data.authorization_url;
     } catch (error) {
       console.error('Failed to connect Gmail:', error);
-      const errorMessage = error.response?.data?.detail || 'Failed to connect Gmail';
+      const errorMessage = error.response?.data?.detail || t('settings.connectGmailError');
       if (error.response?.status === 401) {
-        alert('Gmail hisobini ulash uchun avval login qiling');
+        alert(t('settings.loginRequired'));
       } else if (errorMessage.includes('not configured')) {
-        setUploadError('Gmail OAuth sozlanmagan. Iltimos, avval credentials.json yuklang.');
+        setUploadError(t('settings.gmailOAuthNotConfigured'));
         setShowCredentialsModal(true);
       } else {
         alert(errorMessage);
@@ -1077,13 +1077,13 @@ export default function Settings() {
         // Invalidate queries to refresh UI
         queryClient.invalidateQueries('connected-accounts');
         queryClient.refetchQueries('connected-accounts'); // Avtomatik yangilash
-        alert('Credentials.json muvaffaqiyatli yuklandi! Endi Gmail hisobini ulashingiz mumkin.');
+        alert(t('settings.credentialsUploadSuccessAlert'));
       },
       onError: (error) => {
         if (error.response?.status === 401) {
-          setUploadError('Credentials.json yuklash uchun avval login qiling');
+          setUploadError(t('settings.credentialsLoginRequired'));
         } else {
-          setUploadError(error.response?.data?.detail || 'Credentials.json yuklashda xatolik');
+          setUploadError(error.response?.data?.detail || t('settings.credentialsUploadError'));
         }
       },
     }
@@ -1112,13 +1112,13 @@ export default function Settings() {
         queryClient.refetchQueries('scans'); // Avtomatik yangilash
         queryClient.invalidateQueries('findings');
         queryClient.refetchQueries('findings'); // Avtomatik yangilash
-        alert('Token.json muvaffaqiyatli yuklandi va Gmail hisob ulandi!');
+        alert(t('settings.tokenUploadSuccessAlert'));
       },
       onError: (error) => {
         if (error.response?.status === 401) {
-          setUploadError('Token.json yuklash uchun avval login qiling');
+          setUploadError(t('settings.tokenLoginRequired'));
         } else {
-          setUploadError(error.response?.data?.detail || 'Token.json yuklashda xatolik');
+          setUploadError(error.response?.data?.detail || t('settings.tokenUploadError'));
         }
       },
     }
@@ -1126,12 +1126,12 @@ export default function Settings() {
 
   const handleCredentialsUpload = () => {
     if (!hasToken) {
-      setUploadError('Credentials.json yuklash uchun avval login qiling');
+      setUploadError(t('settings.credentialsLoginRequired'));
       return;
     }
     
     if (!credentialsFile) {
-      setUploadError('Iltimos, credentials.json faylini tanlang');
+      setUploadError(t('settings.credentialsSelectFile'));
       return;
     }
     uploadCredentialsMutation.mutate(credentialsFile);
@@ -1139,19 +1139,19 @@ export default function Settings() {
 
   const handleTokenUpload = () => {
     if (!hasToken) {
-      setUploadError('Token.json yuklash uchun avval login qiling');
+      setUploadError(t('settings.tokenLoginRequired'));
       return;
     }
     
     if (!tokenFile) {
-      setUploadError('Iltimos, token.json faylini tanlang');
+      setUploadError(t('settings.tokenSelectFile'));
       return;
     }
     uploadTokenMutation.mutate(tokenFile);
   };
 
   const handleDisconnect = async (accountId) => {
-    if (window.confirm('Bu hisobni uzishni xohlaysizmi?')) {
+    if (window.confirm(t('settings.confirmDisconnect'))) {
       disconnectMutation.mutate(accountId);
     }
   };
@@ -1167,7 +1167,7 @@ export default function Settings() {
             setScanningAccount(null);
             setCurrentScanId(null);
             setScanStatus('cancelled');
-            setScanResult({ message: 'Tahlil muvaffaqiyatli bekor qilindi.' });
+            setScanResult({ message: t('settings.scanCancelledSuccess') });
             // Invalidate ALL queries after cancelling scan
             queryClient.invalidateQueries(); // Invalidate all queries
             queryClient.invalidateQueries('scans');
@@ -1183,7 +1183,7 @@ export default function Settings() {
             }
           },
       onError: (error) => {
-        const errorMessage = error.response?.data?.detail || 'Tahlilni bekor qilishda xatolik';
+        const errorMessage = error.response?.data?.detail || t('settings.cancelScanError');
         setUploadError(errorMessage);
         setTimeout(() => setUploadError(''), 5000);
       },
@@ -1222,17 +1222,18 @@ export default function Settings() {
     }
     
     if (!scanIdToCancel) {
-      alert('Tahlil topilmadi yoki allaqachon tugagan.');
+      alert(t('settings.scanNotFound'));
       return;
     }
     
-    if (window.confirm('Tahlilni bekor qilishni xohlaysizmi?')) {
+    if (window.confirm(t('settings.confirmCancelScan'))) {
       cancelScanMutation.mutate(scanIdToCancel);
     }
   };
 
   return (
     <div className="space-y-6 animate-fade-in">
+      
       {/* Sarlavha */}
       <div>
         <h1 className="text-4xl font-bold text-gray-900 mb-2">
@@ -1265,13 +1266,13 @@ export default function Settings() {
             <InformationCircleIcon className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className="text-sm font-semibold text-orange-900 mb-1">
-                Muhim: Xabarlarni o'chirish va spam sifatida belgilash uchun
+                {t('settings.modifyScopeNoticeTitle')}
               </p>
               <p className="text-xs text-orange-800 mb-2">
-                Agar siz Gmail xabarlarini o'chirish yoki spam sifatida belgilash funksiyalaridan foydalanmoqchi bo'lsangiz, Gmail hisobingizni <strong>qayta ulashingiz</strong> kerak. Bu yangi <code className="bg-orange-100 px-1 rounded">gmail.modify</code> scope'ini qo'shadi.
+                <span dangerouslySetInnerHTML={{ __html: t('settings.modifyScopeNoticeBodyHtml') }} />
               </p>
               <p className="text-xs text-orange-800">
-                <strong>Qanday qilish:</strong> Quyidagi ro'yxatdan Gmail hisobingizni o'chirib tashlang, keyin "Gmail Hisobini Ulash (OAuth)" tugmasini bosing va qayta ulang.
+                <span dangerouslySetInnerHTML={{ __html: t('settings.modifyScopeNoticeHowToHtml') }} />
               </p>
             </div>
           </div>
@@ -1578,7 +1579,7 @@ export default function Settings() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-white rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-gray-900">Gmail Hisobini Ulash Qo'llanmasi</h3>
+              <h3 className="text-2xl font-bold text-gray-900">{t('settings.gmailGuideTitle')}</h3>
               <button
                 onClick={() => setShowGmailGuideModal(false)}
                 className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
@@ -1590,238 +1591,29 @@ export default function Settings() {
             <div className="space-y-4 text-sm text-gray-800">
               {/* Gmail Hisobini Ulash Qo'llanmasi */}
               <div className="p-5 bg-pink-50 border border-pink-200 rounded-lg">
-            <div className="flex items-start space-x-3 mb-3">
-              <InformationCircleIcon className="h-6 w-6 text-pink-600 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-pink-900 mb-2">Gmail Hisobini Ulash (Ixtiyoriy)</h3>
-                <div className="space-y-2 text-sm text-pink-800">
-                  <p><strong>Maqsad:</strong> Gmail xabarlarida shaxsiy ma'lumotlaringiz oqib ketganini aniqlash</p>
-                  
-                  <p className="mt-3"><strong>📋 Google Cloud Console'da Credentials Olish (0 dan boshlab):</strong></p>
-                  <ol className="list-decimal list-inside ml-2 space-y-2">
-                    <li><strong>Google Cloud Console'ga kirish:</strong>
-                      <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
-                        <li>Google Cloud Console'ga kiring: <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-medium">https://console.cloud.google.com/</a></li>
-                        <li>Google hisobingiz bilan login qiling (Gmail hisobingiz bilan bir xil bo'lishi shart emas)</li>
-                      </ul>
-                    </li>
-                    
-                    <li><strong>Yangi loyiha yaratish:</strong>
-                      <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
-                        <li>Yuqoridagi "Loyiha tanlash" yoki "Select a project" tugmasini bosing</li>
-                        <li>"YANGI LOYIHA" (NEW PROJECT) tugmasini bosing</li>
-                        <li>Loyiha nomini kiriting (masalan: <code className="bg-pink-100 px-1 rounded">Personal Leak Detector</code>)</li>
-                        <li>"Yaratish" (CREATE) tugmasini bosing</li>
-                        <li>Loyiha yaratilgandan so'ng, uni tanlang</li>
-                      </ul>
-                    </li>
-                    
-                    <li><strong>Gmail API'ni faollashtirish (MUHIM!):</strong>
-                      <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
-                        <li>Chap menudan <strong>"API va xizmatlar"</strong> (APIs &amp; Services) &gt; <strong>"Kutubxona"</strong> (Library) bo'limiga o'ting</li>
-                        <li>Qidiruv qutisiga <code className="bg-pink-100 px-1 rounded">Gmail API</code> yozing</li>
-                        <li>"Gmail API" ni tanlang</li>
-                        <li><strong>"FAOLLASHTIRISH"</strong> (ENABLE) tugmasini bosing</li>
-                        <li>Yoki to'g'ridan-to'g'ri: <a href="https://console.cloud.google.com/apis/library/gmail.googleapis.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-medium">Gmail API'ni faollashtirish</a></li>
-                        <li>API faollashtirilgandan keyin 2-3 daqiqa kutib turing</li>
-                      </ul>
-                    </li>
-                    
-                    <li><strong>OAuth consent screen sozlash:</strong>
-                      <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
-                        <li>Chap menudan <strong>"API va xizmatlar"</strong> (APIs &amp; Services) &gt; <strong>"OAuth consent screen"</strong> bo'limiga o'ting</li>
-                        <li><strong>User type:</strong> <code className="bg-pink-100 px-1 rounded">External</code> ni tanlang (yoki <code className="bg-pink-100 px-1 rounded">Internal</code> agar Google Workspace bo'lsa)</li>
-                        <li>"Yaratish" (CREATE) tugmasini bosing</li>
-                        <li><strong>App name:</strong> <code className="bg-pink-100 px-1 rounded">Personal Leak Detector</code> yozing</li>
-                        <li><strong>User support email:</strong> Sizning email manzilingizni kiriting (masalan: <code className="bg-pink-100 px-1 rounded">siz@misol.com</code>)</li>
-                        <li><strong>Developer contact information:</strong> Sizning email manzilingizni kiriting</li>
-                        <li>"Saqlash va davom etish" (SAVE AND CONTINUE) tugmasini bosing</li>
-                      </ul>
-                    </li>
-                    
-                    <li><strong>Scopes qo'shish (MUHIM!):</strong>
-                      <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
-                        <li>"Scopes" bo'limiga o'ting</li>
-                        <li>"ADD OR REMOVE SCOPES" tugmasini bosing</li>
-                        <li>Quyidagi scope'larni qidirib, tanlang va "UPDATE" tugmasini bosing:
-                          <div className="mt-2 p-3 bg-pink-100 border border-pink-300 rounded-lg">
-                            <p className="font-semibold text-pink-900 mb-2">Kerakli Scope'lar (URI'lar):</p>
-                            <ul className="list-disc list-inside ml-2 space-y-1 text-xs">
-                              <li><code className="bg-white px-1 rounded">https://www.googleapis.com/auth/gmail.readonly</code> - Gmail'ni o'qish uchun</li>
-                              <li><code className="bg-white px-1 rounded font-semibold">https://www.googleapis.com/auth/gmail.modify</code> - <strong>Xabarlarni o'chirish va spam sifatida belgilash uchun (MUHIM!)</strong></li>
-                              <li><code className="bg-white px-1 rounded">https://www.googleapis.com/auth/userinfo.email</code> - Email manzilini olish uchun</li>
-                              <li><code className="bg-white px-1 rounded">https://www.googleapis.com/auth/userinfo.profile</code> - Profil ma'lumotlarini olish uchun</li>
-                            </ul>
-                            <p className="text-xs text-pink-700 mt-2 italic">⚠️ Eslatma: Agar siz xabarlarni o'chirish yoki spam sifatida belgilash funksiyalaridan foydalanmoqchi bo'lsangiz, <code className="bg-white px-1 rounded">gmail.modify</code> scope'ini qo'shish shart!</p>
-                          </div>
-                        </li>
-                        <li>"Saqlash va davom etish" (SAVE AND CONTINUE) tugmasini bosing</li>
-                      </ul>
-                    </li>
-                    
-                    <li><strong>Test users qo'shish (agar "Testing" holatida bo'lsa):</strong>
-                      <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
-                        <li>"Test users" bo'limiga o'ting</li>
-                        <li>"ADD USERS" tugmasini bosing</li>
-                        <li>Gmail email manzilingizni kiriting (masalan: <code className="bg-pink-100 px-1 rounded">siz@gmail.com</code>)</li>
-                        <li>"ADD" tugmasini bosing</li>
-                        <li>"Saqlash va davom etish" (SAVE AND CONTINUE) tugmasini bosing</li>
-                      </ul>
-                    </li>
-                    
-                    <li><strong>OAuth 2.0 Client ID yaratish:</strong>
-                      <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
-                        <li>Chap menudan <strong>"API va xizmatlar"</strong> (APIs &amp; Services) &gt; <strong>"Credentials"</strong> bo'limiga o'ting</li>
-                        <li>Yuqoridagi <strong>"+ CREDENTIALS"</strong> tugmasini bosing</li>
-                        <li><strong>"OAuth client ID"</strong> ni tanlang</li>
-                        <li><strong>Application type:</strong> <code className="bg-pink-100 px-1 rounded">Web application</code> ni tanlang</li>
-                        <li><strong>Name:</strong> <code className="bg-pink-100 px-1 rounded">Personal Leak Detector</code> yozing</li>
-                        <li><strong>Authorized redirect URIs:</strong> bo'limiga quyidagi manzilni qo'shing:
-                          <div className="mt-1 p-2 bg-pink-100 border border-pink-300 rounded">
-                            <code className="text-xs">http://localhost:8000/api/v1/oauth/gmail/callback</code>
-                          </div>
-                        </li>
-                        <li>"Yaratish" (CREATE) tugmasini bosing</li>
-                        <li><strong>⚠️ MUHIM:</strong> Client ID va Client Secret'ni ko'chirib oling va xavfsiz joyda saqlang!</li>
-                        <li>"OK" tugmasini bosing</li>
-                      </ul>
-                    </li>
-                    
-                    <li><strong>Credentials.json faylini yuklab olish:</strong>
-                      <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
-                        <li>"Credentials" sahifasida yaratilgan OAuth 2.0 Client ID yonidagi <strong>⬇️ Download</strong> ikonkasini bosing</li>
-                        <li>Yoki Client ID'ni bosing va "Download JSON" tugmasini bosing</li>
-                        <li><code className="bg-pink-100 px-1 rounded">client_secret_*.json</code> fayli yuklab olinadi</li>
-                        <li>Bu faylni <code className="bg-pink-100 px-1 rounded">credentials.json</code> deb nomlang</li>
-                      </ul>
-                    </li>
-                  </ol>
-                  
-                  <p className="mt-3"><strong>📤 Credentials.json faylini yuklash:</strong></p>
-                  <ol className="list-decimal list-inside ml-2 space-y-1">
-                    <li>Navigation bar'da "Sozlamalar" bo'limiga o'ting</li>
-                    <li>"Credentials.json Yuklash" tugmasini bosing</li>
-                    <li>Yuklab olgan <code className="bg-pink-100 px-1 rounded">credentials.json</code> faylini tanlang</li>
-                    <li>"Yuklash" tugmasini bosing</li>
-                    <li>Muvaffaqiyatli yuklangandan so'ng, "Gmail Hisobini Ulash (OAuth)" tugmasini bosing</li>
-                  </ol>
-                  
-                  <p className="mt-3"><strong>🔗 Gmail hisobini ulash:</strong></p>
-                  <ol className="list-decimal list-inside ml-2 space-y-1">
-                    <li>"Gmail Hisobini Ulash (OAuth)" tugmasini bosing</li>
-                    <li>Google'ga yo'naltiriladi - Google account bilan login qiling</li>
-                    <li>Ruxsat bering (Gmail'ni o'qish va o'zgartirish uchun - <strong>gmail.modify</strong> scope'ini tanlashni unutmang!)</li>
-                    <li>Muvaffaqiyatli ulangan bo'lsa, hisob ro'yxatda ko'rinadi</li>
-                  </ol>
-                  
-                  <p className="mt-3"><strong>🔍 Gmail tahlil qilish:</strong></p>
-                  <ol className="list-decimal list-inside ml-2 space-y-1">
-                    <li>Ulangan Gmail hisob yonidagi <strong>🔍 Tahlil qilish</strong> tugmasini bosing</li>
-                    <li>Tahlil qilish boshlanadi</li>
-                    <li>Topilmalar "Topilmalar" sahifasida ko'rinadi</li>
-                  </ol>
-                  
-                  <p className="mt-2"><strong>⚠️ Muhim:</strong> Redirect URI to'g'ri sozlanishi kerak!</p>
-                      <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                        <p className="font-semibold text-red-900 mb-1">⚠️ "Gmail API has not been used" yoki "accessNotConfigured" xatosi bo'lsa:</p>
-                        <ul className="list-disc list-inside ml-2 space-y-1 text-sm text-red-800">
-                          <li>Gmail API faollashtirilmagan bo'lishi mumkin</li>
-                          <li>Google Cloud Console'da <strong>API va xizmatlar &gt; Kutubxona</strong> bo'limiga o'ting</li>
-                          <li>"Gmail API" ni qidiring va <strong>FAOLLASHTIRISH</strong> tugmasini bosing</li>
-                          <li>Yoki to'g'ridan-to'g'ri: <a href="https://console.cloud.google.com/apis/library/gmail.googleapis.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-medium">Gmail API'ni faollashtirish</a></li>
-                          <li>API faollashtirilgandan keyin 2-3 daqiqa kutib turing</li>
-                          <li>Keyin qayta tahlil qilishni urinib ko'ring</li>
-                        </ul>
-                      </div>
-                  <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p className="font-semibold text-yellow-900 mb-1">⚠️ "redirect_uri_mismatch" xatosi bo'lsa:</p>
-                    <ul className="list-disc list-inside ml-2 space-y-1 text-yellow-800">
-                      <li>Google Cloud Console'da <strong>Authorized redirect URIs</strong> ga quyidagi manzilni qo'shing:</li>
-                      <li><code className="bg-yellow-100 px-1 rounded">http://localhost:8000/api/v1/oauth/gmail/callback</code></li>
-                      <li>Yoki credentials.json faylida <code className="bg-yellow-100 px-1 rounded">redirect_uris</code> bo'limiga qo'shing</li>
-                      <li>Sozlamalarni saqlang va 5-10 daqiqa kutib turing</li>
-                    </ul>
+                <div className="flex items-start space-x-3 mb-3">
+                  <InformationCircleIcon className="h-6 w-6 text-pink-600 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-pink-900 mb-2">{t('settings.gmailGuideCardTitle')}</h3>
+                    <div
+                      className="space-y-2 text-sm text-pink-800"
+                      dangerouslySetInnerHTML={{ __html: t('settings.gmailGuideHtml') }}
+                    />
                   </div>
-                  <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="font-semibold text-red-900 mb-1">🚫 "403: access_denied" yoki "ilova tekshirilmagan" xatosi bo'lsa:</p>
-                    <p className="text-sm text-red-800 mb-2">Bu xato Google Cloud Console'da ilova "Testing" holatida bo'lganda chiqadi.</p>
-                    <p className="text-sm font-medium text-red-900 mb-1">Yechim 1: OAuth consent screen'ni Production'ga o'zgartirish (Tavsiya etiladi):</p>
-                    <ol className="list-decimal list-inside ml-2 space-y-1 text-sm text-red-800">
-                      <li>Google Cloud Console'ga kiring: <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">https://console.cloud.google.com/</a></li>
-                      <li>Loyihani tanlang</li>
-                      <li>API va xizmatlar &gt; <strong>OAuth consent screen</strong> bo'limiga o'ting</li>
-                      <li>Quyidagi maydonlarni to'ldiring:
-                        <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
-                          <li><strong>User type:</strong> <code className="bg-red-100 px-1 rounded">External</code> (yoki Internal agar Google Workspace bo'lsa)</li>
-                          <li><strong>App name:</strong> <code className="bg-red-100 px-1 rounded">Personal Leak Detector</code></li>
-                          <li><strong>User support email:</strong> Sizning email manzilingiz</li>
-                          <li><strong>Developer contact information:</strong> Sizning email manzilingiz</li>
-                        </ul>
-                      </li>
-                      <li><strong>Scopes</strong> bo'limiga quyidagilarni qo'shing (MUHIM: Xabarlarni o'chirish va spam sifatida belgilash uchun <code className="bg-red-100 px-1 rounded">gmail.modify</code> scope'ini qo'shing!):
-                        <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
-                          <li><code className="bg-red-100 px-1 rounded">https://www.googleapis.com/auth/gmail.readonly</code> - Gmail'ni o'qish uchun</li>
-                          <li><code className="bg-red-100 px-1 rounded font-semibold">https://www.googleapis.com/auth/gmail.modify</code> - <strong>Xabarlarni o'chirish va spam sifatida belgilash uchun (MUHIM!)</strong></li>
-                          <li><code className="bg-red-100 px-1 rounded">https://www.googleapis.com/auth/userinfo.email</code> - Email manzilini olish uchun</li>
-                          <li><code className="bg-red-100 px-1 rounded">https://www.googleapis.com/auth/userinfo.profile</code> - Profil ma'lumotlarini olish uchun</li>
-                        </ul>
-                        <p className="text-xs text-red-700 mt-2 italic">⚠️ Eslatma: Agar siz xabarlarni o'chirish yoki spam sifatida belgilash funksiyalaridan foydalanmoqchi bo'lsangiz, <code className="bg-red-100 px-1 rounded">gmail.modify</code> scope'ini qo'shish shart!</p>
-                      </li>
-                      <li><strong>Test users</strong> bo'limiga o'zingizning email manzilingizni qo'shing (agar Testing holatida bo'lsa)</li>
-                      <li>Oxirida <strong>"PUBLISH APP"</strong> tugmasini bosing</li>
-                      <li>Google'ning tasdiqlash jarayonini kutib turing (bir necha daqiqa yoki kun)</li>
-                    </ol>
-                    <p className="text-sm font-medium text-red-900 mt-3 mb-1">Yechim 2: Test ro'yxatiga qo'shish (Tezkor yechim):</p>
-                    <ol className="list-decimal list-inside ml-2 space-y-1 text-sm text-red-800">
-                      <li>Google Cloud Console'da <strong>OAuth consent screen</strong> bo'limiga o'ting</li>
-                      <li><strong>Test users</strong> bo'limiga o'zingizning email manzilingizni qo'shing</li>
-                      <li>Sozlamalarni saqlang</li>
-                      <li>Endi o'sha email bilan login qilish mumkin bo'ladi</li>
-                    </ol>
-                    <p className="text-xs text-red-700 mt-2 italic">Eslatma: Testing holatida faqat test ro'yxatidagi foydalanuvchilar login qila oladi. Production holatida barcha foydalanuvchilar login qila oladi.</p>
-                  </div>
-                  <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="font-semibold text-blue-900 mb-2">✅ To'liq ruxsat olish uchun (Xabarlarni o'chirish va spam sifatida belgilash):</p>
-                    <ol className="list-decimal list-inside ml-2 space-y-1 text-sm text-blue-800">
-                      <li>Google Cloud Console'ga kiring: <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">https://console.cloud.google.com/</a></li>
-                      <li>Loyihani tanlang</li>
-                      <li>API va xizmatlar &gt; <strong>OAuth consent screen</strong> bo'limiga o'ting</li>
-                      <li><strong>Scopes</strong> bo'limiga quyidagi scope'ni qo'shing:
-                        <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
-                          <li><code className="bg-blue-100 px-1 rounded">https://www.googleapis.com/auth/gmail.modify</code></li>
-                        </ul>
-                      </li>
-                      <li>Sozlamalarni saqlang</li>
-                      <li>Settings sahifasida Gmail hisobingizni o'chirib tashlang (agar mavjud bo'lsa)</li>
-                      <li>"Gmail Hisobini Ulash (OAuth)" tugmasini bosing va qayta ulang</li>
-                      <li>Google'da ruxsat berishda <strong>barcha scope'lar</strong>ni tanlashni unutmang!</li>
-                    </ol>
-                  </div>
-                  <p className="mt-2"><strong>Qanday ulash:</strong></p>
-                  <ol className="list-decimal list-inside ml-2 space-y-1">
-                    <li>Navigation bar'da "Sozlamalar" bo'limiga o'ting</li>
-                    <li>"Credentials.json Yuklash" tugmasini bosib, Google Cloud Console'dan olingan credentials.json faylini yuklang</li>
-                    <li>"Gmail Hisobini Ulash (OAuth)" tugmasini bosing</li>
-                    <li>Google'ga yo'naltiriladi - Google account bilan login qiling</li>
-                    <li>Ruxsat bering (Gmail'ni o'qish va o'zgartirish uchun - <strong>gmail.modify</strong> scope'ini tanlashni unutmang!)</li>
-                    <li>Muvaffaqiyatli ulangan bo'lsa, hisob ro'yxatda ko'rinadi</li>
-                  </ol>
-                  <p className="mt-2"><strong>Uzish:</strong> Hisob yonidagi quti ikonkasini bosing va tasdiqlang</p>
                 </div>
               </div>
-            </div>
-          </div>
-            </div>
+
             <div className="mt-6 flex justify-end">
               <button
                 onClick={() => setShowGmailGuideModal(false)}
                 className="btn-primary px-6 py-2"
               >
-                Yopish
+                {t('common.close')}
               </button>
             </div>
           </div>
         </div>
+      </div>
       )}
 
       {/* Gmail Tahlil Modal */}
@@ -1851,12 +1643,12 @@ export default function Settings() {
             {scanStatus === 'running' && (
               <>
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-gray-900">Gmail Tahlil Qilinmoqda</h3>
+                  <h3 className="text-xl font-bold text-gray-900">{t('settings.scanRunningTitle')}</h3>
                   <button
                     onClick={handleCancelScan}
                     disabled={cancelScanMutation.isLoading}
                     className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    title="Tahlilni to'xtatish"
+                    title={t('settings.stopScan')}
                   >
                     <XMarkIcon className="h-6 w-6" />
                   </button>
@@ -1873,15 +1665,15 @@ export default function Settings() {
                   </div>
                   
                   <p className="text-lg font-semibold text-gray-900 mb-2">
-                    {scanningAccount && accounts?.find(a => a.id === scanningAccount)?.email || 'Gmail'} hisobi tahlil qilinmoqda
+                    {t('settings.scanRunningFor', { email: (scanningAccount && accounts?.find(a => a.id === scanningAccount)?.email) || 'Gmail' })}
                   </p>
                   <p className="text-sm text-gray-600 mb-4">
-                    Iltimos, kuting. Bu biroz vaqt olishi mumkin...
+                    {t('settings.pleaseWait')}
                   </p>
                   
                   <div className="flex items-center justify-center space-x-2">
                     <div className="animate-spin rounded-full h-6 w-6 border-4 border-blue-600 border-t-transparent"></div>
-                    <span className="text-sm text-blue-700 font-medium">Tahlil jarayonida...</span>
+                    <span className="text-sm text-blue-700 font-medium">{t('settings.scanningInProgress')}</span>
                   </div>
                 </div>
                 
@@ -1892,7 +1684,7 @@ export default function Settings() {
                     className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
                   >
                     <ArrowLeftIcon className="h-5 w-5" />
-                    <span>Ortga (To'xtatish)</span>
+                    <span>{t('settings.backStop')}</span>
                   </button>
                 </div>
               </>
@@ -1945,7 +1737,7 @@ export default function Settings() {
               return (
                 <>
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-gray-900">Gmail Tahlil Tugallandi</h3>
+                    <h3 className="text-xl font-bold text-gray-900">{t('settings.scanCompletedTitle')}</h3>
                     <button
                       onClick={() => {
                         // Only allow closing if scan is completed, failed, or cancelled
@@ -1963,7 +1755,7 @@ export default function Settings() {
                       }}
                       disabled={scanStatus === 'running'}
                       className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      title={scanStatus === 'running' ? 'Tahlil tugamaguncha yopib bo\'lmaydi' : 'Yopish'}
+                      title={scanStatus === 'running' ? t('settings.cannotCloseWhileRunning') : t('common.close')}
                     >
                       <XMarkIcon className="h-6 w-6" />
                     </button>
@@ -1975,7 +1767,7 @@ export default function Settings() {
                     </div>
                     
                     <p className="text-lg font-semibold text-gray-900 mb-2">
-                      Muvaffaqiyatli yakunlandi!
+                      {t('settings.completedSuccess')}
                     </p>
                     <p className="text-sm text-gray-600 mb-4">
                       {scanResult.message || `"${displayEmail}" tahlil qilindi!`}
@@ -1987,15 +1779,15 @@ export default function Settings() {
                         <div className="grid grid-cols-3 gap-4 text-center">
                           <div>
                             <p className="text-2xl font-bold text-blue-600">{displayTotalMessages}</p>
-                            <p className="text-xs text-gray-600 mt-1">Jami xabar</p>
+                            <p className="text-xs text-gray-600 mt-1">{t('settings.totalMessages')}</p>
                           </div>
                           <div>
                             <p className="text-2xl font-bold text-red-600">{displayDangerousMessages}</p>
-                            <p className="text-xs text-gray-600 mt-1">Xavfli</p>
+                            <p className="text-xs text-gray-600 mt-1">{t('settings.dangerous')}</p>
                           </div>
                           <div>
                             <p className="text-2xl font-bold text-gray-600">{displayOtherMessages}</p>
-                            <p className="text-xs text-gray-600 mt-1">Boshqa</p>
+                            <p className="text-xs text-gray-600 mt-1">{t('settings.other')}</p>
                           </div>
                         </div>
                       </div>
@@ -2003,12 +1795,12 @@ export default function Settings() {
                   
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
                     <p className="text-sm font-semibold text-green-900 mb-2">
-                      📋 Tahlil natijalarini qayerdan ko'rish mumkin?
+                      {t('settings.whereToSeeResults')}
                     </p>
                     <ul className="text-sm text-green-800 space-y-1 text-left">
-                      <li>• <strong>Topilmalar</strong> sahifasida barcha topilgan xabarlarni ko'rishingiz mumkin</li>
-                      <li>• <strong>Skanlar</strong> sahifasida barcha tahlil tarixini ko'rishingiz mumkin</li>
-                      <li>• <strong>Boshqaruv Paneli</strong> sahifasida umumiy statistikani ko'rishingiz mumkin</li>
+                      <li dangerouslySetInnerHTML={{ __html: t('settings.resultsLine1Html') }} />
+                      <li dangerouslySetInnerHTML={{ __html: t('settings.resultsLine2Html') }} />
+                      <li dangerouslySetInnerHTML={{ __html: t('settings.resultsLine3Html') }} />
                     </ul>
                   </div>
                 </div>
@@ -2030,7 +1822,7 @@ export default function Settings() {
                     className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center space-x-2"
                   >
                     <ExclamationTriangleIcon className="h-5 w-5" />
-                    <span>Topilmalarni Ko'rish</span>
+                    <span>{t('settings.viewFindings')}</span>
                   </Link>
                   <button
                     onClick={() => {
@@ -2046,7 +1838,7 @@ export default function Settings() {
                     }}
                     className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
                   >
-                    Yopish
+                    {t('common.close')}
                   </button>
                 </div>
               </>
@@ -2056,7 +1848,7 @@ export default function Settings() {
             {scanStatus === 'failed' && scanResult && (
               <>
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-gray-900">Gmail Tahlil Muvaffaqiyatsiz</h3>
+                  <h3 className="text-xl font-bold text-gray-900">{t('settings.scanFailedTitle')}</h3>
                   <button
                     onClick={() => {
                       setShowScanModal(false);
@@ -2075,10 +1867,10 @@ export default function Settings() {
                   </div>
                   
                   <p className="text-lg font-semibold text-gray-900 mb-2">
-                    Tahlil muvaffaqiyatsiz yakunlandi
+                    {t('settings.failed')}
                   </p>
                   <p className="text-sm text-red-600 mb-4">
-                    {scanResult.error || 'Tahlil qilishda xatolik yuz berdi'}
+                    {scanResult.error || t('settings.scanErrorGeneric')}
                   </p>
                 </div>
                 
@@ -2097,7 +1889,7 @@ export default function Settings() {
                         }}
                         className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
                       >
-                        Yopish
+                        {t('common.close')}
                       </button>
                     </div>
                   </>
@@ -2106,7 +1898,7 @@ export default function Settings() {
                 {scanStatus === 'cancelled' && scanResult && (
                   <>
                     <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-xl font-bold text-gray-900">Gmail Tahlil Bekor Qilindi</h3>
+                      <h3 className="text-xl font-bold text-gray-900">{t('settings.scanCancelledTitle')}</h3>
                       <button
                         onClick={() => {
                           setShowScanModal(false);
@@ -2131,10 +1923,10 @@ export default function Settings() {
                   </div>
                   
                   <p className="text-lg font-semibold text-gray-900 mb-2">
-                    Tahlil bekor qilindi
+                    {t('settings.cancelled')}
                   </p>
                   <p className="text-sm text-gray-600 mb-4">
-                    {scanResult.message || 'Tahlil muvaffaqiyatli bekor qilindi.'}
+                    {scanResult.message || t('settings.scanCancelledFallback')}
                   </p>
                 </div>
                 
@@ -2153,7 +1945,7 @@ export default function Settings() {
                         }}
                         className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
                       >
-                        Yopish
+                        {t('common.close')}
                       </button>
                     </div>
                   </>
@@ -2262,7 +2054,7 @@ export default function Settings() {
                   
                   {newPassword && confirmPassword && newPassword !== confirmPassword && (
                     <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                      <p className="text-sm text-red-700">Parollar mos kelmaydi!</p>
+                      <p className="text-sm text-red-700">{t('settings.passwordsDoNotMatch')}</p>
                     </div>
                   )}
                   
@@ -2276,20 +2068,20 @@ export default function Settings() {
                       }}
                       className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
                     >
-                      Bekor qilish
+                      {t('common.cancel')}
                     </button>
                     <button
                       onClick={() => {
                         if (!currentPassword || !newPassword || !confirmPassword) {
-                          alert('Iltimos, barcha maydonlarni to\'ldiring!');
+                          alert(t('settings.fillAllFields'));
                           return;
                         }
                         if (newPassword !== confirmPassword) {
-                          alert('Parollar mos kelmaydi!');
+                          alert(t('settings.passwordsDoNotMatch'));
                           return;
                         }
                         if (newPassword.length < 8) {
-                          alert('Yangi parol kamida 8 belgidan iborat bo\'lishi kerak!');
+                          alert(t('settings.passwordMin8'));
                           return;
                         }
                         changePasswordMutation.mutate({
@@ -2300,7 +2092,7 @@ export default function Settings() {
                       disabled={changePasswordMutation.isLoading || newPassword !== confirmPassword}
                       className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
-                      {changePasswordMutation.isLoading ? 'Kuting...' : 'Parolni o\'zgartirish'}
+                      {changePasswordMutation.isLoading ? t('common.pleaseWait') : t('settings.changePasswordButton')}
                     </button>
                   </div>
                 </div>
@@ -2313,7 +2105,7 @@ export default function Settings() {
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
               <div className="bg-white rounded-lg p-6 max-w-md w-full">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-gray-900">Emailni o'zgartirish</h3>
+                  <h3 className="text-xl font-bold text-gray-900">{t('settings.changeEmailTitle')}</h3>
                   <button
                     onClick={() => {
                       setShowEmailModal(false);
@@ -2329,20 +2121,20 @@ export default function Settings() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Yangi email
+                      {t('settings.newEmailLabel')}
                     </label>
                     <input
                       type="email"
                       value={newEmail}
                       onChange={(e) => setNewEmail(e.target.value)}
                       className="input-field w-full"
-                      placeholder="Yangi email manzilingizni kiriting"
+                      placeholder={t('settings.newEmailPlaceholder')}
                     />
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Parolni tasdiqlash
+                      {t('settings.confirmPasswordLabel')}
                     </label>
                     <div className="relative">
                       <input
@@ -2350,7 +2142,7 @@ export default function Settings() {
                         value={emailPassword}
                         onChange={(e) => setEmailPassword(e.target.value)}
                         className="input-field w-full pr-10"
-                        placeholder="Parolingizni kiriting (tasdiqlash uchun)"
+                        placeholder={t('settings.confirmPasswordPlaceholder')}
                       />
                       <button
                         type="button"
@@ -2368,7 +2160,7 @@ export default function Settings() {
                   
                   <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                     <p className="text-sm text-yellow-800">
-                      ⚠️ Eslatma: Email o'zgargandan so'ng, yangi email bilan login qilishingiz kerak bo'ladi.
+                      {t('settings.changeEmailNote')}
                     </p>
                   </div>
                   
@@ -2381,16 +2173,16 @@ export default function Settings() {
                       }}
                       className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
                     >
-                      Bekor qilish
+                      {t('common.cancel')}
                     </button>
                     <button
                       onClick={() => {
                         if (!newEmail || !emailPassword) {
-                          alert('Iltimos, barcha maydonlarni to\'ldiring!');
+                          alert(t('settings.fillAllFields'));
                           return;
                         }
                         if (!newEmail.includes('@')) {
-                          alert('Iltimos, to\'g\'ri email manzil kiriting!');
+                          alert(t('settings.invalidEmail'));
                           return;
                         }
                         changeEmailMutation.mutate({
@@ -2401,7 +2193,7 @@ export default function Settings() {
                       disabled={changeEmailMutation.isLoading}
                       className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
-                      {changeEmailMutation.isLoading ? 'Kuting...' : 'Emailni o\'zgartirish'}
+                      {changeEmailMutation.isLoading ? t('common.pleaseWait') : t('settings.changeEmailButton')}
                     </button>
                   </div>
                 </div>

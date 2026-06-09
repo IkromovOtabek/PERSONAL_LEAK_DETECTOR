@@ -241,7 +241,8 @@ def _process_email_scan(scan: Scan, account_id: str, items_dict: List[Dict], db:
             try:
                 phishing_result = phishing_detector.detect_phishing(message)
             except Exception as e:
-                logger.warning(f"Xabar {message.get('id', 'noma\'lum')} uchun phishing aniqlashda xatolik: {e}")
+                _msg_id = message.get('id', "noma'lum")
+                logger.warning(f"Xabar {_msg_id} uchun phishing aniqlashda xatolik: {e}")
                 phishing_result = {
                     'is_phishing': False,
                     'risk_score': 0.0,

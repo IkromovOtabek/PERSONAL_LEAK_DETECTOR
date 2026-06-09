@@ -147,31 +147,25 @@ def gmail_callback(
             detail="State parametri topilmadi. Iltimos, qayta urinib ko'ring."
         )
     
-    # Decode user ID from state
+    # Decode state: either "login" (Continue with Google) or user_id (existing user connecting Gmail)
     try:
-        user_id_str = base64.urlsafe_b64decode(state.encode()).decode()
-        user_id = int(user_id_str)
+        state_decoded = base64.urlsafe_b64decode(state.encode()).decode()
+    except Exception as e:
+        logger.error(f"Failed to decode state: {e}")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="State parametri noto'g'ri.")
+    
+    is_google_login = state_decoded.strip() == "login"
+    if not is_google_login:
+        try:
+            user_id = int(state_decoded)
+        except (ValueError, TypeError):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="State parametri noto'g'ri.")
         logger.info(f"Decoded user_id from state: {user_id}")
-    except (ValueError, TypeError, Exception) as e:
-        logger.error(f"Failed to decode state parameter: {state}, error: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"State parametri noto'g'ri: {str(e)}. Iltimos, qayta urinib ko'ring."
-        )
-    
-    # Get user from database
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
-    
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User account is inactive"
-        )
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        if not user.is_active:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User account is inactive")
     
     # Prepare client config
     client_config = {
@@ -328,6 +322,21 @@ def gmail_callback(
                 detail="Could not retrieve email from Google account"
             )
         
+        # Continue with Google: find or create user by email (no credentials.json from user)
+        if is_google_login:
+            from app.core.security import get_password_hash
+            user = db.query(User).filter(User.email == email).first()
+            if not user:
+                user = User(
+                    email=email,
+                    password_hash=get_password_hash("google_oauth_placeholder"),
+                    is_verified=True,
+                    is_active=True,
+                )
+                db.add(user)
+                db.commit()
+                db.refresh(user)
+        
         # Use the scopes that were actually granted by Google
         # Google may add 'openid' scope automatically, which is fine
         granted_scopes = credentials.scopes if credentials.scopes else GMAIL_SCOPES
@@ -389,9 +398,21 @@ def gmail_callback(
             db.rollback()
             raise
         
-        # Redirect to frontend with success message
+        # Redirect: Continue with Google → frontend with JWT; else → settings
         from fastapi.responses import RedirectResponse
+        from app.core.security import create_access_token
+        from datetime import timedelta
         frontend_url = settings.FRONTEND_URL
+        if is_google_login:
+            access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+            access_token = create_access_token(
+                data={"sub": str(user.id), "email": user.email},
+                expires_delta=access_token_expires
+            )
+            return RedirectResponse(
+                url=f"{frontend_url}/auth/callback?token={access_token}",
+                status_code=status.HTTP_302_FOUND
+            )
         return RedirectResponse(
             url=f"{frontend_url}/settings?gmail_connected=true&email={email}",
             status_code=status.HTTP_302_FOUND
@@ -798,11 +819,12 @@ def delete_gmail_message(
         
         if not has_modify_scope:
             logger.error(f"gmail.modify scope not found. Stored scopes: {stored_scopes}")
+            scopes_str = ', '.join(stored_scopes) if stored_scopes else "yo'q"
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=(
                     f"Xabarni o'chirish uchun 'gmail.modify' scope'i kerak. "
-                    f"Hozirgi scope'lar: {', '.join(stored_scopes) if stored_scopes else 'yo\'q'}. "
+                    f"Hozirgi scope'lar: {scopes_str}. "
                     f"Iltimos, Gmail hisobini qayta ulang va Google'da ruxsat berishda 'gmail.modify' scope'ini tanlang."
                 )
             )
@@ -848,11 +870,12 @@ def delete_gmail_message(
             error_str = str(api_error)
             logger.error(f"Error deleting message: {api_error}")
             if 'insufficient' in error_str.lower() or 'permission' in error_str.lower():
+                scopes_str = ', '.join(stored_scopes) if stored_scopes else "yo'q"
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail=(
                         f"Xabarni o'chirish uchun yetarli ruxsat yo'q. "
-                        f"Hozirgi scope'lar: {', '.join(stored_scopes) if stored_scopes else 'yo\'q'}. "
+                        f"Hozirgi scope'lar: {scopes_str}. "
                         f"Xato: {error_str}. "
                         f"Iltimos, Gmail hisobini qayta ulang va Google'da ruxsat berishda 'gmail.modify' scope'ini tanlang."
                     )
@@ -940,7 +963,7 @@ def mark_gmail_message_as_spam(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=(
                     f"Xabarni spam sifatida belgilash uchun 'gmail.modify' scope'i kerak. "
-                    f"Hozirgi scope'lar: {', '.join(stored_scopes) if stored_scopes else 'yo\'q'}. "
+                    f"Hozirgi scope'lar: {', '.join(stored_scopes) if stored_scopes else 'mavjud emas'}. "
                     f"Iltimos, Gmail hisobini qayta ulang va Google'da ruxsat berishda 'gmail.modify' scope'ini tanlang."
                 )
             )
@@ -994,7 +1017,7 @@ def mark_gmail_message_as_spam(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail=(
                         f"Xabarni spam sifatida belgilash uchun yetarli ruxsat yo'q. "
-                        f"Hozirgi scope'lar: {', '.join(stored_scopes) if stored_scopes else 'yo\'q'}. "
+                        f"Hozirgi scope'lar: {', '.join(stored_scopes) if stored_scopes else 'mavjud emas'}. "
                         f"Xato: {error_str}. "
                         f"Iltimos, Gmail hisobini qayta ulang va Google'da ruxsat berishda 'gmail.modify' scope'ini tanlang."
                     )
