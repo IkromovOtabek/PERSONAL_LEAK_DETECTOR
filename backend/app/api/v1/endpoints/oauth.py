@@ -336,7 +336,22 @@ def gmail_callback(
                 db.add(user)
                 db.commit()
                 db.refresh(user)
-        
+
+            # LOGIN-ONLY: Gmail scope berilmagan bo'lsa (oddiy login/signup) —
+            # Gmail account saqlamasdan, to'g'ridan-to'g'ri JWT bilan login qilamiz.
+            if 'https://www.googleapis.com/auth/gmail.readonly' not in granted_scopes:
+                from fastapi.responses import RedirectResponse
+                from app.core.security import create_access_token
+                from datetime import timedelta
+                access_token = create_access_token(
+                    data={"sub": str(user.id), "email": user.email},
+                    expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
+                )
+                return RedirectResponse(
+                    url=f"{settings.FRONTEND_URL}/auth/callback?token={access_token}",
+                    status_code=status.HTTP_302_FOUND,
+                )
+
         # Use the scopes that were actually granted by Google
         # Google may add 'openid' scope automatically, which is fine
         granted_scopes = credentials.scopes if credentials.scopes else GMAIL_SCOPES

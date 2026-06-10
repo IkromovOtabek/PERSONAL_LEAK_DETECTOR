@@ -153,12 +153,13 @@ def google_login():
     redirect_uri = settings.GMAIL_REDIRECT_URI
     if not redirect_uri:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="GMAIL_REDIRECT_URI not set")
+    # Faqat login/signup uchun oddiy (non-sensitive) scope'lar — Gmail scope YO'Q.
+    # Shu sabab app'ni Publish qilgach istalgan Google foydalanuvchi ogohlantirishsiz kiradi.
+    # Gmail scan kerak bo'lsa — alohida "Connect Gmail" (/oauth/gmail/connect) orqali.
     scopes = [
         "openid",
         "https://www.googleapis.com/auth/userinfo.email",
         "https://www.googleapis.com/auth/userinfo.profile",
-        "https://www.googleapis.com/auth/gmail.readonly",
-        "https://www.googleapis.com/auth/gmail.modify",
     ]
     flow = Flow.from_client_config(
         {
