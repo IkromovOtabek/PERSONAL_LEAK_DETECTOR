@@ -5,6 +5,7 @@ from app.models.scan import Scan
 from app.models.finding import Finding
 from app.models.audit_log import AuditLog
 from app.models.encrypted_file import EncryptedFile
+from app.models.agent_report import AgentReport
 
 __all__ = [
     "User",
@@ -14,5 +15,6 @@ __all__ = [
     "Finding",
     "AuditLog",
     "EncryptedFile",
+    "AgentReport",
 ]
 
